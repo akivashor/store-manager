@@ -22,6 +22,12 @@ class ProductRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_name(self, name: str) -> Product | None:
+        result = await self.db.execute(
+            select(Product).options(selectinload(Product.stock)).where(Product.name == name)
+        )
+        return result.scalar_one_or_none()
+
     async def get_by_barcode(self, barcode: str) -> Product | None:
         result = await self.db.execute(
             select(Product).options(selectinload(Product.stock)).where(Product.barcode == barcode)
@@ -42,8 +48,7 @@ class ProductRepository:
 
     async def update(self, product: Product, data: dict) -> Product:
         for key, value in data.items():
-            if value is not None:
-                setattr(product, key, value)
+            setattr(product, key, value)
         await self.db.commit()
         await self.db.refresh(product)
         return product
