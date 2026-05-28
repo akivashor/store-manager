@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Store Manager</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#3b82f6"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-slate-800 rounded-2xl p-8 w-full max-w-sm shadow-xl">
+      <h1 class="text-2xl font-bold text-blue-400 mb-2 text-center">Store Manager</h1>
+      <p id="cashier-code-display" class="text-center text-slate-400 text-sm mb-6"></p>
+      <form id="login-form" class="space-y-4">
+        <input id="email" type="email" placeholder="Email" required
+          class="w-full bg-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+        <input id="password" type="password" placeholder="Password" required
+          class="w-full bg-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+        <button type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-3 font-semibold transition">
+          Login
+        </button>
+        <p id="login-error" class="text-red-400 text-sm text-center hidden"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app" class="hidden">
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex justify-between items-center sticky top-0 z-10">
+      <div>
+        <h1 class="font-bold text-blue-400">Store Manager</h1>
+        <p id="cashier-info" class="text-xs text-slate-400"></p>
+      </div>
+      <button onclick="logout()" class="text-slate-400 hover:text-white text-sm">Logout</button>
+    </header>
+
+    <!-- Nav Tabs -->
+    <nav class="bg-slate-800 border-b border-slate-700 flex">
+      <button onclick="showTab('pos')" id="tab-pos" class="tab-btn flex-1 py-3 text-sm font-medium text-blue-400 border-b-2 border-blue-400">POS</button>
+      <button onclick="showTab('products')" id="tab-products" class="tab-btn flex-1 py-3 text-sm font-medium text-slate-400">Products</button>
+      <button onclick="showTab('stock')" id="tab-stock" class="tab-btn flex-1 py-3 text-sm font-medium text-slate-400">Stock</button>
+      <button onclick="showTab('sales')" id="tab-sales" class="tab-btn flex-1 py-3 text-sm font-medium text-slate-400">Sales</button>
+    </nav>
+
+    <!-- POS Tab -->
+    <div id="tab-content-pos" class="p-4 space-y-4">
+      <div id="cart" class="space-y-2"></div>
+      <div id="cart-total" class="hidden bg-slate-800 rounded-xl p-4">
+        <div class="flex justify-between text-lg font-bold mb-3">
+          <span>Total</span><span id="total-amount" class="text-green-400"></span>
+        </div>
+        <button onclick="submitSale()" class="w-full bg-green-600 hover:bg-green-500 rounded-lg py-3 font-semibold transition">
+          Complete Sale
+        </button>
+        <button onclick="clearCart()" class="w-full mt-2 bg-slate-700 hover:bg-slate-600 rounded-lg py-2 text-sm transition">
+          Clear
+        </button>
+      </div>
+      <div id="product-list-pos" class="grid grid-cols-2 gap-3"></div>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="tab-content-products" class="p-4 hidden">
+      <div id="product-list" class="space-y-3"></div>
+    </div>
+
+    <!-- Stock Tab -->
+    <div id="tab-content-stock" class="p-4 hidden">
+      <div id="low-stock-alert" class="hidden mb-4 bg-red-900/50 border border-red-500 rounded-xl p-4">
+        <p class="font-semibold text-red-400 mb-2">Low Stock Items</p>
+        <div id="low-stock-list" class="space-y-1 text-sm"></div>
+      </div>
+      <div id="stock-list" class="space-y-3"></div>
+    </div>
+
+    <!-- Sales Tab -->
+    <div id="tab-content-sales" class="p-4 hidden">
+      <div id="sales-list" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
