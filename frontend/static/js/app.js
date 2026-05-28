@@ -5,6 +5,7 @@ let cart = [];
 let products = [];
 
 const BASE_COLORS = [
+  { name: "White",   hex: "#ffffff", dark: true  }, { name: "Black",   hex: "#1f2937", dark: true  },
   { name: "Red",     hex: "#ef4444" }, { name: "Rose",    hex: "#f43f5e" },
   { name: "Orange",  hex: "#f97316" }, { name: "Amber",   hex: "#f59e0b" },
   { name: "Yellow",  hex: "#eab308" }, { name: "Lime",    hex: "#84cc16" },
@@ -14,7 +15,7 @@ const BASE_COLORS = [
   { name: "Indigo",  hex: "#6366f1" }, { name: "Violet",  hex: "#8b5cf6" },
   { name: "Purple",  hex: "#a855f7" }, { name: "Fuchsia", hex: "#d946ef" },
   { name: "Pink",    hex: "#ec4899" }, { name: "Brown",   hex: "#92400e" },
-  { name: "Gray",    hex: "#6b7280" }, { name: "Black",   hex: "#1f2937" },
+  { name: "Gray",    hex: "#6b7280" },
 ];
 
 // ── Auth ────────────────────────────────────────────────────────────────────
@@ -163,7 +164,7 @@ function buildColorPicker() {
     <button type="button" title="${c.name}"
       onclick="selectColor('${c.hex}', this)"
       style="background:${c.hex}"
-      class="w-8 h-8 rounded-full border-2 border-transparent hover:scale-110 transition-transform color-swatch">
+      class="w-8 h-8 rounded-full border-2 ${c.dark ? 'border-slate-400' : 'border-transparent'} hover:scale-110 transition-transform color-swatch">
     </button>
   `).join("");
 }
