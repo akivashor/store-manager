@@ -52,6 +52,13 @@ function logout() {
 async function showApp() {
   document.getElementById("login-screen").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
+
+  const fresh = await api("/api/auth/me");
+  if (fresh && !fresh._error) {
+    cashier = fresh;
+    localStorage.setItem("cashier", JSON.stringify(cashier));
+  }
+
   document.getElementById("cashier-info").textContent = `${cashier.name} · ${cashier.cashier_code}`;
   if (cashier.is_admin) {
     document.getElementById("add-product-btn-wrap").classList.remove("hidden");

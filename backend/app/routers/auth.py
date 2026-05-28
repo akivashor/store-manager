@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.repository.cashier_repository import CashierRepository
 from app.schemas.cashier import CashierCreate, CashierOut, Token
-from app.auth import create_access_token, require_admin
+from app.auth import create_access_token, get_current_cashier, require_admin
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -17,6 +17,11 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     token = create_access_token({"sub": cashier.email})
     return {"access_token": token, "token_type": "bearer", "cashier": cashier}
+
+
+@router.get("/me", response_model=CashierOut)
+async def me(cashier=Depends(get_current_cashier)):
+    return cashier
 
 
 @router.post("/cashiers", response_model=CashierOut, dependencies=[Depends(require_admin)])
