@@ -1,9 +1,7 @@
+import bcrypt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.cashier import Cashier
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class CashierRepository:
@@ -27,7 +25,7 @@ class CashierRepository:
             cashier_code=cashier_code,
             name=name,
             email=email,
-            hashed_password=pwd_context.hash(password),
+            hashed_password=bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode(),
             is_admin=is_admin,
         )
         self.db.add(cashier)
@@ -36,4 +34,4 @@ class CashierRepository:
         return cashier
 
     def verify_password(self, plain: str, hashed: str) -> bool:
-        return pwd_context.verify(plain, hashed)
+        return bcrypt.checkpw(plain.encode(), hashed.encode())
