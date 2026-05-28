@@ -4,6 +4,19 @@ let cashier = JSON.parse(localStorage.getItem("cashier") || "null");
 let cart = [];
 let products = [];
 
+const BASE_COLORS = [
+  { name: "Red",     hex: "#ef4444" }, { name: "Rose",    hex: "#f43f5e" },
+  { name: "Orange",  hex: "#f97316" }, { name: "Amber",   hex: "#f59e0b" },
+  { name: "Yellow",  hex: "#eab308" }, { name: "Lime",    hex: "#84cc16" },
+  { name: "Green",   hex: "#22c55e" }, { name: "Emerald", hex: "#10b981" },
+  { name: "Teal",    hex: "#14b8a6" }, { name: "Cyan",    hex: "#06b6d4" },
+  { name: "Sky",     hex: "#0ea5e9" }, { name: "Blue",    hex: "#3b82f6" },
+  { name: "Indigo",  hex: "#6366f1" }, { name: "Violet",  hex: "#8b5cf6" },
+  { name: "Purple",  hex: "#a855f7" }, { name: "Fuchsia", hex: "#d946ef" },
+  { name: "Pink",    hex: "#ec4899" }, { name: "Brown",   hex: "#92400e" },
+  { name: "Gray",    hex: "#6b7280" }, { name: "Black",   hex: "#1f2937" },
+];
+
 // ── Auth ────────────────────────────────────────────────────────────────────
 
 document.getElementById("login-form").addEventListener("submit", async e => {
@@ -42,6 +55,7 @@ async function showApp() {
   document.getElementById("cashier-info").textContent = `${cashier.name} · ${cashier.cashier_code}`;
   if (cashier.is_admin) {
     document.getElementById("add-product-btn-wrap").classList.remove("hidden");
+    buildColorPicker();
   }
   await loadProducts();
   showTab("pos");
@@ -90,33 +104,82 @@ async function loadProducts() {
 
 function renderPOSProducts() {
   document.getElementById("product-list-pos").innerHTML = products.map(p => `
-    <button onclick='addToCart(${p.id})' class="bg-slate-800 rounded-xl p-3 text-left hover:bg-slate-700 transition">
-      <p class="font-medium text-sm truncate">${p.name}</p>
-      <p class="text-green-400 text-sm">$${parseFloat(p.price).toFixed(2)}</p>
-      <p class="text-xs text-slate-400">${p.stock ? p.stock.quantity : 0} in stock</p>
+    <button onclick='addToCart(${p.id})' class="bg-slate-800 rounded-xl overflow-hidden text-left hover:bg-slate-700 transition">
+      ${p.photo_url
+        ? `<img src="${p.photo_url}" alt="${p.name}" class="w-full h-24 object-cover"/>`
+        : `<div class="w-full h-24 flex items-center justify-center text-3xl" style="background:${p.color || '#334155'}">${p.color ? '' : '📦'}</div>`
+      }
+      <div class="p-2">
+        <p class="font-medium text-sm truncate">${p.name}</p>
+        <div class="flex items-center justify-between mt-0.5">
+          <p class="text-green-400 text-sm">$${parseFloat(p.price).toFixed(2)}</p>
+          ${p.color ? `<span class="w-3 h-3 rounded-full inline-block" style="background:${p.color}"></span>` : ""}
+        </div>
+        <p class="text-xs text-slate-400">${p.stock ? p.stock.quantity : 0} in stock</p>
+      </div>
     </button>
   `).join("");
 }
 
 function renderProductList() {
   document.getElementById("product-list").innerHTML = products.map(p => `
-    <div class="bg-slate-800 rounded-xl p-4">
-      <div class="flex justify-between items-start">
-        <div>
-          <p class="font-semibold">${p.name}</p>
-          <p class="text-slate-400 text-sm">${p.category || "Uncategorized"}</p>
-          ${p.barcode ? `<p class="text-xs text-slate-500">Barcode: ${p.barcode}</p>` : ""}
+    <div class="bg-slate-800 rounded-xl overflow-hidden">
+      ${p.photo_url ? `<img src="${p.photo_url}" alt="${p.name}" class="w-full h-36 object-cover"/>` : ""}
+      <div class="p-4">
+        <div class="flex justify-between items-start">
+          <div class="flex items-center gap-2">
+            ${p.color ? `<span class="w-4 h-4 rounded-full flex-shrink-0" style="background:${p.color}"></span>` : ""}
+            <div>
+              <p class="font-semibold">${p.name}</p>
+              <p class="text-slate-400 text-sm">${p.category || "Uncategorized"}</p>
+              ${p.barcode ? `<p class="text-xs text-slate-500">SKU: ${p.barcode}</p>` : ""}
+            </div>
+          </div>
+          <span class="text-green-400 font-bold">$${parseFloat(p.price).toFixed(2)}</span>
         </div>
-        <span class="text-green-400 font-bold">$${parseFloat(p.price).toFixed(2)}</span>
-      </div>
-      <div class="mt-2 flex gap-3 text-sm">
-        <span class="${(p.stock?.quantity || 0) <= (p.stock?.min_quantity || 5) ? 'text-red-400' : 'text-slate-300'}">
-          Stock: ${p.stock?.quantity ?? 0}
-        </span>
-        <span class="text-slate-500">Min: ${p.stock?.min_quantity ?? 5}</span>
+        <div class="mt-2 flex gap-3 text-sm">
+          <span class="${(p.stock?.quantity || 0) <= (p.stock?.min_quantity || 5) ? 'text-red-400' : 'text-slate-300'}">
+            Stock: ${p.stock?.quantity ?? 0}
+          </span>
+          <span class="text-slate-500">Min: ${p.stock?.min_quantity ?? 5}</span>
+        </div>
       </div>
     </div>
   `).join("");
+}
+
+// ── Color Picker ─────────────────────────────────────────────────────────────
+
+function buildColorPicker() {
+  const container = document.getElementById("color-picker");
+  container.innerHTML = BASE_COLORS.map(c => `
+    <button type="button" title="${c.name}"
+      onclick="selectColor('${c.hex}', this)"
+      style="background:${c.hex}"
+      class="w-8 h-8 rounded-full border-2 border-transparent hover:scale-110 transition-transform color-swatch">
+    </button>
+  `).join("");
+}
+
+function selectColor(hex, btn) {
+  document.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("border-white", "scale-110"));
+  const current = document.getElementById("np-color").value;
+  if (current === hex) {
+    document.getElementById("np-color").value = "";
+  } else {
+    btn.classList.add("border-white", "scale-110");
+    document.getElementById("np-color").value = hex;
+  }
+}
+
+// ── Photo Preview ─────────────────────────────────────────────────────────────
+
+function previewPhoto(input) {
+  const preview = document.getElementById("np-photo-preview");
+  if (input.files && input.files[0]) {
+    preview.src = URL.createObjectURL(input.files[0]);
+    preview.classList.remove("hidden");
+  }
 }
 
 // ── Add Product ───────────────────────────────────────────────────────────────
@@ -138,6 +201,23 @@ async function submitAddProduct() {
     return;
   }
 
+  // Upload photo first if one was selected
+  let photo_url = null;
+  const photoFile = document.getElementById("np-photo").files[0];
+  if (photoFile) {
+    const formData = new FormData();
+    formData.append("file", photoFile);
+    const uploadRes = await fetch(`${API}/api/uploads/photo`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    if (uploadRes.ok) {
+      const data = await uploadRes.json();
+      photo_url = data.url;
+    }
+  }
+
   const params = new URLSearchParams({
     initial_stock: document.getElementById("np-stock").value || 0,
     min_quantity: document.getElementById("np-min-stock").value || 5,
@@ -150,6 +230,8 @@ async function submitAddProduct() {
       price: parseFloat(price),
       category: document.getElementById("np-category").value.trim() || null,
       barcode: document.getElementById("np-barcode").value.trim() || null,
+      color: document.getElementById("np-color").value || null,
+      photo_url,
     }),
   });
 
@@ -162,6 +244,10 @@ async function submitAddProduct() {
   ["np-name", "np-price", "np-category", "np-barcode"].forEach(id => document.getElementById(id).value = "");
   document.getElementById("np-stock").value = "0";
   document.getElementById("np-min-stock").value = "5";
+  document.getElementById("np-color").value = "";
+  document.getElementById("np-photo").value = "";
+  document.getElementById("np-photo-preview").classList.add("hidden");
+  document.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("border-white", "scale-110"));
   toggleAddProduct();
   await loadProducts();
   renderProductList();

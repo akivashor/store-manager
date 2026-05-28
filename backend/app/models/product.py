@@ -13,6 +13,8 @@ class Product(Base):
     price: Mapped[float] = mapped_column(Numeric(10, 2))
     category: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
     barcode: Mapped[str | None] = mapped_column(String(100), unique=True, nullable=True, index=True)
+    photo_url: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    color: Mapped[str | None] = mapped_column(String(20), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 

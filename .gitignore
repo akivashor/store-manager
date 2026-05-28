@@ -1,4 +1,6 @@
 .idea/
+backend/uploads/*
+!backend/uploads/.gitkeep
 __pycache__/
 *.pyc
 *.pyo

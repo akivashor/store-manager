@@ -8,6 +8,8 @@ class ProductCreate(BaseModel):
     price: float
     category: str | None = None
     barcode: str | None = None
+    photo_url: str | None = None
+    color: str | None = None
 
 
 class ProductUpdate(BaseModel):
@@ -16,6 +18,8 @@ class ProductUpdate(BaseModel):
     price: float | None = None
     category: str | None = None
     barcode: str | None = None
+    photo_url: str | None = None
+    color: str | None = None
     is_active: bool | None = None
 
 
@@ -33,6 +37,8 @@ class ProductOut(BaseModel):
     price: float
     category: str | None
     barcode: str | None
+    photo_url: str | None
+    color: str | None
     is_active: bool
     created_at: datetime
     stock: StockInfo | None = None

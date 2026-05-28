@@ -97,6 +97,24 @@
               class="w-full bg-slate-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
           </div>
         </div>
+
+        <!-- Color Picker -->
+        <div>
+          <label class="text-xs text-slate-400 mb-2 block">Color (optional)</label>
+          <div id="color-picker" class="flex flex-wrap gap-2"></div>
+          <input id="np-color" type="hidden" value=""/>
+        </div>
+
+        <!-- Photo Upload -->
+        <div>
+          <label class="text-xs text-slate-400 mb-2 block">Photo (optional)</label>
+          <label class="flex items-center gap-3 cursor-pointer bg-slate-700 rounded-lg px-4 py-2.5 hover:bg-slate-600 transition">
+            <span class="text-sm text-slate-300">Choose image</span>
+            <input id="np-photo" type="file" accept="image/*" class="hidden" onchange="previewPhoto(this)"/>
+          </label>
+          <img id="np-photo-preview" src="" alt="" class="hidden mt-2 rounded-lg max-h-32 object-cover"/>
+        </div>
+
         <p id="np-error" class="text-red-400 text-sm hidden"></p>
         <div class="flex gap-3">
           <button onclick="submitAddProduct()" class="flex-1 bg-green-600 hover:bg-green-500 rounded-lg py-2.5 font-semibold transition">
