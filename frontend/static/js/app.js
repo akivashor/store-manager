@@ -40,6 +40,9 @@ async function showApp() {
   document.getElementById("login-screen").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   document.getElementById("cashier-info").textContent = `${cashier.name} · ${cashier.cashier_code}`;
+  if (cashier.is_admin) {
+    document.getElementById("add-product-btn-wrap").classList.remove("hidden");
+  }
   await loadProducts();
   showTab("pos");
   registerServiceWorker();
@@ -110,6 +113,54 @@ function renderProductList() {
       </div>
     </div>
   `).join("");
+}
+
+// ── Add Product ───────────────────────────────────────────────────────────────
+
+function toggleAddProduct() {
+  const form = document.getElementById("add-product-form");
+  form.classList.toggle("hidden");
+  document.getElementById("np-error").classList.add("hidden");
+}
+
+async function submitAddProduct() {
+  const name = document.getElementById("np-name").value.trim();
+  const price = document.getElementById("np-price").value;
+  const errEl = document.getElementById("np-error");
+
+  if (!name || !price) {
+    errEl.textContent = "Name and price are required.";
+    errEl.classList.remove("hidden");
+    return;
+  }
+
+  const params = new URLSearchParams({
+    initial_stock: document.getElementById("np-stock").value || 0,
+    min_quantity: document.getElementById("np-min-stock").value || 5,
+  });
+
+  const product = await api(`/api/products?${params}`, {
+    method: "POST",
+    body: JSON.stringify({
+      name,
+      price: parseFloat(price),
+      category: document.getElementById("np-category").value.trim() || null,
+      barcode: document.getElementById("np-barcode").value.trim() || null,
+    }),
+  });
+
+  if (!product) {
+    errEl.textContent = "Failed to create product. Check for duplicate barcode.";
+    errEl.classList.remove("hidden");
+    return;
+  }
+
+  ["np-name", "np-price", "np-category", "np-barcode"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("np-stock").value = "0";
+  document.getElementById("np-min-stock").value = "5";
+  toggleAddProduct();
+  await loadProducts();
+  renderProductList();
 }
 
 // ── POS / Cart ────────────────────────────────────────────────────────────────
