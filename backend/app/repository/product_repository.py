@@ -32,6 +32,8 @@ class ProductRepository:
         product = Product(**data)
         self.db.add(product)
         await self.db.flush()
+        if not product.barcode:
+            product.barcode = f"SKU-{product.id:05d}"
         stock = Stock(product_id=product.id, quantity=initial_stock, min_quantity=min_quantity)
         self.db.add(stock)
         await self.db.commit()

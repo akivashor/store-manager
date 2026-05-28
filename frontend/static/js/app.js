@@ -58,7 +58,11 @@ async function api(path, options = {}) {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...(options.headers || {}) },
   });
   if (res.status === 401) { logout(); return null; }
-  return res.ok ? res.json() : null;
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    return { _error: err.detail || `Error ${res.status}` };
+  }
+  return res.json();
 }
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
@@ -149,8 +153,8 @@ async function submitAddProduct() {
     }),
   });
 
-  if (!product) {
-    errEl.textContent = "Failed to create product. Check for duplicate barcode.";
+  if (!product || product._error) {
+    errEl.textContent = product?._error || "Failed to create product.";
     errEl.classList.remove("hidden");
     return;
   }
